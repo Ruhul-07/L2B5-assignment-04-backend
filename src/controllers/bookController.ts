@@ -68,31 +68,75 @@ export const createBook = async (
   }
 }
 
+// export const updateBook = async (
+//   req: Request<{ id: string }, {}, IBookUpdate>,
+//   res: Response<ApiResponse<IBook>>,
+//   next: NextFunction,
+// ): Promise<void> => {
+//   try {
+//     const book = await Book.findByIdAndUpdate(req.params.id, req.body, {
+//       new: true,
+//       runValidators: true,
+//       lean: true,
+//     })
+
+//     if (!book) {
+//       throw new AppError("Book not found", 404)
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       data: book,
+//       message: "Book updated successfully",
+//     })
+//   } catch (error) {
+//     next(error)
+//   }
+// }
+
+
 export const updateBook = async (
   req: Request<{ id: string }, {}, IBookUpdate>,
   res: Response<ApiResponse<IBook>>,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const book = await Book.findByIdAndUpdate(req.params.id, req.body, {
+    const { id } = req.params;
+    let updateData: IBookUpdate = { ...req.body }; // Create a mutable copy of the body
+
+    // Business logic: If copies are set to 0, mark the book as unavailable
+    // Ensure 'copies' is treated as a number for comparison
+    if (updateData.copies !== undefined && updateData.copies === 0) {
+      updateData.available = false;
+    } else if (updateData.copies !== undefined && updateData.copies > 0 && updateData.available === false) {
+      // If copies become positive but 'available' was explicitly set to false,
+      // you might want to keep it false or set it to true.
+      // For this implementation, if copies are positive, we assume it should be available
+      // unless explicitly set to false by the user. If it was false and copies become >0,
+      // we make it available.
+      updateData.available = true;
+    }
+
+
+    const book = await Book.findByIdAndUpdate(id, updateData, { // Use updateData here
       new: true,
       runValidators: true,
       lean: true,
-    })
+    });
 
     if (!book) {
-      throw new AppError("Book not found", 404)
+      throw new AppError("Book not found", 404);
     }
 
     res.status(200).json({
       success: true,
       data: book,
       message: "Book updated successfully",
-    })
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
 export const deleteBook = async (
   req: Request<{ id: string }>,

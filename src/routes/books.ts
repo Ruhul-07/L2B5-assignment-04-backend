@@ -14,7 +14,7 @@ router.get("/:id", validateObjectId, getBookById)
 router.post("/", validateBookInput, createBook)
 
 // PUT /api/books/:id - Update book
-router.put("/:id", validateObjectId, validateBookInput, updateBook)
+router.patch("/:id", validateObjectId, validateBookInput, updateBook)
 
 // DELETE /api/books/:id - Delete book
 router.delete("/:id", validateObjectId, deleteBook)

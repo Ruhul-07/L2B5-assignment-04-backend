@@ -9,11 +9,24 @@ import { errorHandler, notFound } from "./middleware/errorHandler"
 // Load environment variables
 dotenv.config()
 
+
+
 const app = express()
 const PORT = process.env.PORT || 5000
 
+
+// --- ADD THESE LINES FOR DEBUGGING ---
+console.log("Vercel Deployment Environment Variables:")
+console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+console.log("NODE_ENV:", process.env.NODE_ENV);
+// --- END DEBUGGING LINES ---
+
 // Connect to database
 connectDB()
+
+// Body parsing middleware
+app.use(express.json({ limit: "10mb" }))
+app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
 // CORS configuration
 app.use(
